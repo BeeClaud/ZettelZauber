@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Birthday Bowl – Rätselauflösung</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      margin: 0; padding: 0;
+      line-height: 1.4;
+    }
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+    h1 { font-size: 1.4rem; margin: 0 0 12px; }
+    p { opacity: .9; margin: 0 0 16px; }
+    .card {
+      border: 1px solid rgba(127,127,127,.25);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.06);
+    }
+    label { display: block; font-weight: 600; margin: 0 0 8px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    input[type="number"]{
+      flex: 1 1 160px;
+      font-size: 1.1rem;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(127,127,127,.35);
+      outline: none;
+    }
+    button {
+      flex: 0 0 auto;
+      font-size: 1.05rem;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(127,127,127,.35);
+      cursor: pointer;
+    }
+    button:active { transform: translateY(1px); }
+    .opts { margin-top: 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .out {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(127,127,127,.12);
+      min-height: 52px;
+      white-space: pre-wrap;
+    }
+    .hint { font-size: .9rem; opacity: .8; margin-top: 10px; }
+    .small { font-size: .85rem; opacity: .75; margin-top: 18px; }
+    a { color: inherit; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🎉 Birthday Bowl – Rätselauflösung</h1>
+    <p>Gib die <b>Zettelnummer</b> ein (1–20) und lass dir die Lösung anzeigen.</p>
+
+    <div class="card">
+      <label for="nr">Zettelnummer</label>
+      <div class="row">
+        <input id="nr" type="number" inputmode="numeric" min="1" max="20" placeholder="z. B. 14" />
+        <button id="btn">Antwort anzeigen</button>
+        <button id="btnClear" type="button">Zurücksetzen</button>
+      </div>
+
+      <div class="opts">
+        <label style="display:flex; gap:8px; align-items:center; font-weight:500; margin:0;">
+          <input id="showQ" type="checkbox" />
+          Frage mit anzeigen
+        </label>
+      </div>
+
+      <div id="out" class="out">👋 Bereit, wenn ihr es seid.</div>
+      <div class="hint">Tipp: Nummer eintippen → Enter drücken geht auch.</div>
+    </div>
+
+    <div class="small">
+      <div><b>Hinweis:</b> Diese Seite speichert nichts und sammelt keine Daten.</div>
+    </div>
+  </div>
+
+  <script>
+    // "Datenbank": Rätsel 1–20
+    const riddles = {
+      1:  { q: "Was wird beim Trocknen nass?", a: "Ein Handtuch." },
+      2:  { q: "Ich habe Städte, aber keine Häuser. Ich habe Berge, aber keine Bäume. Ich habe Wasser, aber keine Fische. Was bin ich?", a: "Eine Karte." },
+      3:  { q: "Was hat viele Zähne, aber kann nicht beißen?", a: "Ein Kamm (oder ein Reißverschluss)." },
+      4:  { q: "Je mehr du davon nimmst, desto größer wird es. Was ist es?", a: "Ein Loch." },
+      5:  { q: "Was gehört dir, wird aber von anderen öfter benutzt als von dir?", a: "Dein Name." },
+      6:  { q: "Was kommt einmal in einer Minute, zweimal in einem Moment, aber nie in tausend Jahren vor?", a: "Der Buchstabe „m“." },
+      7:  { q: "Was hat einen Kopf und einen Schwanz, aber keinen Körper?", a: "Eine Münze." },
+      8:  { q: "Ich bin leicht wie eine Feder, aber selbst der Stärkste kann mich nicht lange halten. Was bin ich?", a: "Der Atem." },
+      9:  { q: "Welches Wort wird kürzer, wenn man zwei Buchstaben hinzufügt?", a: "„kurz“ → „kürzer“." },
+      10: { q: "Zwei Väter und zwei Söhne gehen essen und bestellen drei Portionen. Niemand bleibt hungrig. Wie?", a: "Es sind drei Personen: Opa, Vater, Sohn." },
+      11: { q: "Was kann man fangen, aber nicht werfen?", a: "Eine Erkältung." },
+      12: { q: "Was läuft, hat aber keine Beine?", a: "Wasser (auch: die Nase / eine Uhr)." },
+      13: { q: "Ich spreche ohne Mund und höre ohne Ohren. Ich habe keinen Körper, aber ich lebe mit dem Wind. Was bin ich?", a: "Ein Echo." },
+      14: { q: "Welche Frage kann man nie mit „Ja“ beantworten?", a: "„Schläfst du?“" },
+      15: { q: "Was steigt hoch, wenn der Regen runterkommt?", a: "Ein Regenschirm." },
+      16: { q: "Was ist voller Löcher und hält trotzdem Wasser?", a: "Ein Schwamm." },
+      17: { q: "Was wird größer, je mehr man davon wegnimmt?", a: "Ein Loch. (Ja, doppelt – Klassiker!)" },
+      18: { q: "Was ist am Ende eines Regenbogens?", a: "Der Buchstabe „n“." },
+      19: { q: "Ich habe Schlüssel, aber keine Schlösser. Ich habe Platz, aber keinen Raum. Du kannst eintreten, aber nicht hinausgehen. Was bin ich?", a: "Eine Tastatur." },
+      20: { q: "Was ist orange und rollt den Berg runter?", a: "Eine Mandarine." }
+    };
+
+    const nr = document.getElementById("nr");
+    const out = document.getElementById("out");
+    const showQ = document.getElementById("showQ");
+
+    function showAnswer() {
+      const n = Number(nr.value);
+      if (!Number.isInteger(n) || n < 1 || n > 20) {
+        out.textContent = "Bitte eine Nummer von 1 bis 20 eingeben.";
+        return;
+      }
+      const item = riddles[n];
+      if (!item) {
+        out.textContent = "Zu dieser Nummer ist (noch) nichts hinterlegt.";
+        return;
+      }
+      out.textContent = showQ.checked
+        ? `#${n}\nFrage: ${item.q}\n\nAntwort: ${item.a}`
+        : `#${n}\nAntwort: ${item.a}`;
+    }
+
+    document.getElementById("btn").addEventListener("click", showAnswer);
+    document.getElementById("btnClear").addEventListener("click", () => {
+      nr.value = "";
+      out.textContent = "👋 Bereit, wenn ihr es seid.";
+      nr.focus();
+    });
+    nr.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") showAnswer();
+    });
+  </script>
+</body>
+</html>
