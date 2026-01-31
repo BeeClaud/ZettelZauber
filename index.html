@@ -222,9 +222,9 @@
       const ctx = canvas.getContext("2d", { alpha: true });
 
       let w, h, dpr;
-      let stars = [];
-      let meteors = [];
-      let nextMeteorAt = 500;
+      let stars = [500];
+      let meteors = [20];
+      let nextMeteorAt = 0;
 
       // Tunables (leicht kräftiger, aber edel)
       const DUST_COUNT  = 240;
@@ -417,4 +417,5 @@
   </script>
 </body>
 </html>
+
 
