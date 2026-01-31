@@ -7,35 +7,61 @@
 
   <style>
     :root { color-scheme: dark; }
-
     html, body { height: 100%; }
 
-body{
-  margin:0;
-  min-height:100vh;
-  display:grid;
-  place-items:center;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  color: rgba(255,255,255,0.92);
-
-  /* Deep space base (nur schwarz/grau/dunkelblau) */
-  background:
-    radial-gradient(1200px 900px at 20% 15%, rgba(120,140,255,0.10), transparent 62%),
-    radial-gradient(900px 700px at 82% 28%, rgba(255,255,255,0.05), transparent 65%),
-    radial-gradient(1000px 760px at 55% 88%, rgba(90,110,180,0.08), transparent 68%),
-    radial-gradient(800px 650px at 40% 55%, rgba(255,255,255,0.03), transparent 70%),
-    linear-gradient(160deg, #03040a 0%, #050814 45%, #020207 100%);
-
-  overflow:hidden;
-}
-
-    @keyframes dustFloat{
-      0%   { transform: translate3d(-0.6%, 0.2%, 0); opacity: 0.18; }
-      50%  { transform: translate3d( 0.5%, -0.4%, 0); opacity: 0.24; }
-      100% { transform: translate3d( 0.2%, 0.7%, 0); opacity: 0.20; }
+    /* ===== Deep space base (no green, no pink) ===== */
+    body{
+      margin:0;
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: rgba(255,255,255,0.92);
+      background:
+        radial-gradient(1200px 900px at 20% 15%, rgba(120,140,255,0.10), transparent 62%),
+        radial-gradient(900px 700px at 82% 28%, rgba(255,255,255,0.05), transparent 65%),
+        radial-gradient(1000px 760px at 55% 88%, rgba(90,110,180,0.08), transparent 68%),
+        radial-gradient(800px 650px at 40% 55%, rgba(255,255,255,0.03), transparent 70%),
+        linear-gradient(160deg, #03040a 0%, #050814 45%, #020207 100%);
+      overflow:hidden;
     }
 
-    /* Film grain overlay (makes it feel real / less "clean") */
+    /* Nebula drift (subtle, space-like) */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:-25%;
+      pointer-events:none;
+      background:
+        radial-gradient(950px 760px at 18% 38%, rgba(120,140,255,0.10), transparent 62%),
+        radial-gradient(1100px 900px at 78% 28%, rgba(255,255,255,0.05), transparent 66%),
+        radial-gradient(980px 820px at 62% 82%, rgba(90,110,180,0.08), transparent 66%),
+        radial-gradient(860px 700px at 36% 76%, rgba(255,255,255,0.03), transparent 70%);
+      filter: blur(12px) saturate(1.02);
+      opacity: 0.95;
+      transform: translate3d(0,0,0);
+      animation: nebulaDrift 42s ease-in-out infinite alternate;
+    }
+
+    @keyframes nebulaDrift{
+      0%   { transform: translate3d(-1.2%, -0.7%, 0) scale(1.02); }
+      50%  { transform: translate3d( 1.1%,  0.6%, 0) scale(1.04); }
+      100% { transform: translate3d(-0.6%,  1.1%, 0) scale(1.03); }
+    }
+
+    /* Random dust canvas layer */
+    #dust{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      pointer-events:none;
+      opacity: 0.95;
+      mix-blend-mode: screen;
+      filter: blur(0.15px);
+    }
+
+    /* Film grain (makes it less "clean" and more real) */
     .grain{
       position:fixed;
       inset:0;
@@ -47,7 +73,6 @@ body{
       background-size: 180px 180px;
       animation: grainMove 6s steps(8) infinite;
     }
-
     @keyframes grainMove{
       0%   { transform: translate3d(0,0,0); }
       25%  { transform: translate3d(-1%, 1%, 0); }
@@ -60,9 +85,11 @@ body{
     .wrap{
       width: min(880px, 92vw);
       padding: 22px 16px 30px;
+      position: relative;
+      z-index: 2;
     }
 
-    /* Glass card (dark, elegant) */
+    /* Glass card */
     .card{
       border-radius: 22px;
       border: 1px solid rgba(255,255,255,0.10);
@@ -78,7 +105,6 @@ body{
       opacity: 0;
       animation: appear .35s ease-out forwards;
     }
-
     @keyframes appear { to { transform: translateY(0); opacity: 1; } }
 
     .question{
@@ -108,6 +134,7 @@ body{
 </head>
 
 <body>
+  <canvas id="dust"></canvas>
   <div class="grain"></div>
 
   <div class="wrap">
@@ -119,49 +146,50 @@ body{
   </div>
 
   <script>
+    // ===== Rätsel-Datenbank (1–37) =====
     const riddles = {
-      1:  { q: "Was wird beim Trocknen nass?", a: "Das Handtuch." },
-      2:  { q: "Ich habe Städte, aber keine Häuser. Ich habe Berge, aber keine Bäume. Ich habe Wasser, aber keine Fische. Was bin ich?", a: "Eine Landkarte." },
-      3:  { q: "Was hat viele Zähne, aber kann nicht beißen?", a: "Ein Reißverschluss." },
-      4:  { q: "Je mehr du davon nimmst, desto größer wird es. Was ist es?", a: "Das Loch." },
-      5:  { q: "Was gehört dir, wird aber von anderen öfter benutzt als von dir?", a: "Dein Name." },
-      6:  { q: "Was kommt einmal in einer Minute, zweimal in einem Moment, aber nie in tausend Jahren vor?", a: "Der Buchstabe „M“." },
-      7:  { q: "Ich bin leicht wie eine Feder, aber selbst der Stärkste kann mich nicht lange halten.", a: "Der Atem." },
-      8:  { q: "Welches Wort wird kürzer, wenn man zwei Buchstaben hinzufügt?", a: "„kurz“ → „kürzer“." },
-      9:  { q: "Zwei Väter und zwei Söhne gehen essen und bestellen drei Portionen. Niemand bleibt hungrig. Wie?", a: "Opa, Vater, Sohn." },
-      10: { q: "Was kann man fangen, aber nicht werfen?", a: "Eine Erkältung." },
-      11: { q: "Was läuft, hat aber keine Beine?", a: "Die Nase." },
-      12: { q: "Welche Frage kann man nie mit „Ja“ beantworten?", a: "„Schläfst du?“" },
-      13: { q: "Was steigt hoch, wenn der Regen runterkommt?", a: "Ein Regenschirm." },
-      14: { q: "Was ist voller Löcher und hält trotzdem Wasser?", a: "Ein Schwamm." },
-      15: { q: "Was ist am Ende eines Regenbogens?", a: "Der Buchstabe „n“." },
-      16: { q: "Ich kann gebrochen werden, ohne dass man mich berührt. Was bin ich?", a: "Ein Versprechen." },
-      17: { q: "Ich habe Seiten, aber ich bin kein Buch. Was bin ich?", a: "Ein Würfel." },
-      18: { q: "Ich bin am Anfang der Ewigkeit und am Ende der Zeit. Ich bin in jedem Ende, aber nie im Anfang. Was bin ich?", a: "Der Buchstabe „E“." },
-      19: { q: "Du siehst mich nur, wenn Licht da ist – aber Licht selbst bin ich nicht. Was bin ich?", a: "Der Schatten." },
-      20: { q: "Was kann jeder „machen“, aber niemand kann es „sehen“?", a: "Einen Fehler." },
-      21: { q: "Ich bin nicht lebendig, aber ich kann wachsen. Ich habe keine Lunge, aber ich brauche Luft. Was bin ich?", a: "Das Feuer." },
-      22: { q: "Wo ist der einzige Ort, an dem heute immer einen Tag hinter gestern liegt?", a: "Im Wörterbuch." },
-      23: { q: "Warum ist es illegal, eine Frau, die in Spanien lebt, in Frankreich zu begraben?", a: "Weil man lebendige Menschen nicht begraben darf." },
-      24: { q: "Ein Mann und sein Chef haben dieselben Eltern, sind aber keine Geschwister. Wie geht das?", a: "Der Mann ist selbstständig (sein eigener Chef)." },
-      25: { q: "Ein Mann steht vor 3 Türen: Feuer, Mörder mit Gewehren, Löwen, die seit Jahren nichts gefressen haben. Welche Tür sollte er wählen?", a: "Die dritte Tür – die Löwen wären längst tot." },
-      26: { q: "Eine Frau findet einen 100-Euro-Schein, obwohl kein Mond zu sehen ist, keine Taschenlampe da ist und keine Straßenbeleuchtung an ist. Wie ist das möglich?", a: "Es ist bereits nach Sonnenaufgang." },
-      27: { q: "Zwei Männer in der Wüste, einer ist tot. Beide haben einen Rucksack. Der lebende hat seinen geöffnetet, der tote geschlossen. Was ist in den Rucksäcken?", a: "Fallschirme." },
-      28: { q: "Im Hotel betritt ein fremder Mann ein Zimmer, sagt dann: „Oh, entschuldigen Sie, ich habe mich in der Tür geirrt.“ Der Detektiv verhaftet ihn. Woran erkennt er den Dieb?", a: "Wenn es wirklich sein Zimmer gewesen wäre, hätte er nicht geklopft." },
+      1:  { q: "Was wird beim Trocknen nass?", a: "Das Handtuch" },
+      2:  { q: "Ich habe Städte, aber keine Häuser. Ich habe Berge, aber keine Bäume. Ich habe Wasser, aber keine Fische. Was bin ich?", a: "Eine Landkarte" },
+      3:  { q: "Was hat viele Zähne, aber kann nicht beißen?", a: "Ein Reißverschluss" },
+      4:  { q: "Je mehr du davon nimmst, desto größer wird es. Was ist es?", a: "Das Loch" },
+      5:  { q: "Was gehört dir, wird aber von anderen öfter benutzt als von dir?", a: "Dein Name" },
+      6:  { q: "Was kommt einmal in einer Minute, zweimal in einem Moment, aber nie in tausend Jahren vor?", a: "Der Buchstabe „M“" },
+      7:  { q: "Ich bin leicht wie eine Feder, aber selbst der Stärkste kann mich nicht lange halten.", a: "Der Atem" },
+      8:  { q: "Welches Wort wird kürzer, wenn man zwei Buchstaben hinzufügt?", a: "kurz → kürzer" },
+      9:  { q: "Zwei Väter und zwei Söhne gehen essen und bestellen drei Portionen. Niemand bleibt hungrig. Wie?", a: "Opa, Vater, Sohn" },
+      10: { q: "Was kann man fangen, aber nicht werfen?", a: "Eine Erkältung" },
+      11: { q: "Was läuft, hat aber keine Beine?", a: "Die Nase" },
+      12: { q: "Welche Frage kann man nie mit „Ja“ beantworten?", a: "Schläfst du?" },
+      13: { q: "Was steigt hoch, wenn der Regen runterkommt?", a: "Ein Regenschirm" },
+      14: { q: "Was ist voller Löcher und hält trotzdem Wasser?", a: "Ein Schwamm" },
+      15: { q: "Was ist am Ende eines Regenbogens?", a: "Der Buchstabe „n“" },
+      16: { q: "Ich kann gebrochen werden, ohne dass man mich berührt. Was bin ich?", a: "Ein Versprechen" },
+      17: { q: "Ich habe Seiten, aber ich bin kein Buch. Was bin ich?", a: "Ein Würfel" },
+      18: { q: "Ich bin am Anfang der Ewigkeit und am Ende der Zeit. Ich bin in jedem Ende, aber nie im Anfang. Was bin ich?", a: "Der Buchstabe „E“" },
+      19: { q: "Du siehst mich nur, wenn Licht da ist – aber Licht selbst bin ich nicht. Was bin ich?", a: "Der Schatten" },
+      20: { q: "Was kann jeder „machen“, aber niemand kann es „sehen“?", a: "Einen Fehler" },
+      21: { q: "Ich bin nicht lebendig, aber ich kann wachsen. Ich habe keine Lunge, aber ich brauche Luft. Was bin ich?", a: "Das Feuer" },
+      22: { q: "Wo ist der einzige Ort, an dem heute immer einen Tag hinter gestern liegt?", a: "Im Wörterbuch" },
+      23: { q: "Warum ist es illegal eine Frau, die in Spanien lebt, in Frankreich zu begraben?", a: "Weil man lebendige Menschen nicht begraben darf." },
+      24: { q: "Ein Mann und sein Chef haben dieselben Eltern, sind aber keine Geschwister. Wie geht das?", a: "Der Mann ist selbstständig." },
+      25: { q: "Ein Mann steht vor 3 Türen und muss durch eine von ihnen hindurchgehen. Die erste Tür führt zu einem Raum voller lichterloh brennendem Feuer. Durch die zweite Tür gelangt man zu einem Raum voller Mörder mit geladenen Gewehren. Hinter der dritten Tür befindet sich ein Raum mit Löwen, die seit Jahren nichts mehr gefressen haben. Welche Tür sollte der Mann wählen?", a: "Die dritte Tür, denn die Löwen wären längst tot." },
+      26: { q: "Eine Frau läuft nach einer Party nachhause und findet einen 100-Euro-Schein auf dem Boden. Obwohl der Mond nicht am Himmel zu sehen ist, sie keine Taschenlampe in der Hand hält und auch keine Straßenbeleuchtung eingeschaltet ist, konnte sie den Schein von weitem erkennen. Wie ist das möglich?", a: "Es ist bereits nach Sonnenaufgang." },
+      27: { q: "Zwei Männer befinden sich mitten in der Wüste ohne Wasser, Handys oder Proviant. Einer von ihnen ist bereits tot. Beide Männer haben einen Rucksack auf dem Rücken. Der Mann, der noch lebt, hat einen geöffneten Rucksack, während der des toten Mannes geschlossen ist. Was befindet sich in den beiden Rucksäcken?", a: "Fallschirme" },
+      28: { q: "Eine junge Frau wohnt in einem teuren Luxus-Hotel neben einer Bank. Eines Abends klopft es an ihrer Tür und noch ehe sie „Herein!“ rufen kann, betritt ein fremder Mann ihr Zimmer. Er sagt: „Oh, entschuldigen Sie bitte, ich habe mich in der Tür geirrt.“ Kurz darauf nimmt der Detektiv den Mann fest. Durch welchen Fehler flog der Dieb auf?", a: "Wenn es sein Zimmer gewesen wäre, hätte er nicht geklopft." },
       29: { q: "Wie kann ein Mensch neun Tage ohne Schlaf auskommen?", a: "Er schläft nachts." },
       30: { q: "Was passiert, wenn man einen grünen Stein ins Rote Meer wirft?", a: "Er wird nass." },
       31: { q: "Ein Mann schiebt sein Auto vor ein Hotel und geht danach pleite. Was ist passiert?", a: "Er hat Monopoly gespielt." },
-      32: { q: "Ein Mann sagt: Vor zwei Tagen war ich 35, dieses Jahr werde ich 37. Wie ist das möglich?", a: "Heute ist der 1. Januar, Geburtstag war am 31. Dezember." },
-      33: { q: "Ein Reiter bindet ein 3 Meter langes Seil um den Hals seines Pferdes. Der Stall ist 10 Meter entfernt, trotzdem kommt das Pferd hin. Wieso?", a: "Das Seil ist am anderen Ende nicht angebunden." },
-      34: { q: "Du kommst in ein Zimmer. Auf dem Bett liegen 2 Katzen, ein Hund und eine Maus. In der Ecke steht der Weihnachtsmann. 3 Tauben und ein kleiner Vogel fliegen durch den Raum. Wie viele Füße stehen im Zimmer?", a: "8 (2 von dir, 4 vom Bett, 2 vom Weihnachtsmann)." },
-      35: { q: "Welche Frucht hat keinen Mut?", a: "Die Feige." },
-      36: { q: "Wie oft kommt die Ziffer 8 in allen Zahlen von 1 bis 100 vor?", a: "20 Mal." },
-      37: { q: "Es beginnt mit dem dritten Buchstaben des Alphabets. Der dritte Buchstabe ist der 6. Buchstabe des Alphabets. Der zweite Buchstabe ist der erste Buchstabe des Alphabets. Der vierte Buchstabe ist der 5. Buchstabe des Alphabets.", a: "„Cafe“." }
+      32: { q: "Ein Mann erzählt allen, dass er vor zwei Tagen noch 35 war, er aber dieses Jahr noch 37 wird. Wie ist das möglich?", a: "Es ist der 1. Januar und er hatte am 31. Dezember Geburtstag." },
+      33: { q: "Ein Reiter bindet ein 3 Meter langes, stabiles Seil um den Hals seines Pferdes. Der Pferdestall mit Futter ist 10 Meter entfernt, jedoch kann das Pferd dorthin gelangen. Wieso?", a: "Das Seil ist am anderen Ende nicht angebunden." },
+      34: { q: "Du kommst in ein Zimmer. Auf dem Bett liegen 2 Katzen, ein Hund und eine Maus. In der Ecke steht der Weihnachtsmann und 3 Tauben sowie ein kleiner Vogel fliegen durch den Raum. Wie viele Füße stehen im Zimmer?", a: "Acht (2 von dir, 4 vom Bett, 2 vom Weihnachtsmann)." },
+      35: { q: "Welche Frucht hat keinen Mut?", a: "Die Feige" },
+      36: { q: "Wie oft kommt die Ziffer 8 in allen Zahlen von 1 bis 100 vor?", a: "Insgesamt 20 Mal." },
+      37: { q: "Es beginnt mit dem dritten Buchstaben des Alphabets. Der dritte Buchstabe ist der 6. Buchstabe des Alphabets. Der zweite Buchstabe ist der erste Buchstabe des Alphabets. Der vierte Buchstabe ist der 5. Buchstabe des Alphabets.", a: "Cafe" }
     };
 
+    // ===== Show riddle by ?r=... =====
     const qEl = document.getElementById("question");
     const aEl = document.getElementById("answer");
-
     const params = new URLSearchParams(location.search);
     const r = params.get("r");
 
@@ -171,7 +199,6 @@ body{
     } else {
       const n = Number(r);
       const item = riddles[n];
-
       if (!Number.isInteger(n) || !item) {
         qEl.textContent = "";
         aEl.textContent = "Keine Lösung hinterlegt.";
@@ -180,7 +207,125 @@ body{
         aEl.textContent = item.a;
       }
     }
+
+    // ===== Random Cosmic Dust (Canvas) =====
+    (() => {
+      const canvas = document.getElementById("dust");
+      const ctx = canvas.getContext("2d", { alpha: true });
+
+      let w, h, dpr;
+      let stars = [];
+
+      // Tunables (edel: nicht zu viele)
+      const DUST_COUNT  = 240;  // feiner Staub
+      const STAR_COUNT  = 70;   // kleine Sterne
+      const SPARK_COUNT = 14;   // wenige "glitzernde" Highlights
+
+      const rand = (min, max) => Math.random() * (max - min) + min;
+
+      function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        w = canvas.width  = Math.floor(window.innerWidth  * dpr);
+        h = canvas.height = Math.floor(window.innerHeight * dpr);
+        canvas.style.width = window.innerWidth + "px";
+        canvas.style.height = window.innerHeight + "px";
+        init();
+      }
+
+      function init() {
+        stars = [];
+
+        // Dust (ultra small, many)
+        for (let i = 0; i < DUST_COUNT; i++) {
+          stars.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            r: rand(0.18, 0.55) * dpr,
+            a: rand(0.03, 0.10),
+            tw: rand(0.002, 0.007),
+            ph: rand(0, Math.PI * 2),
+            vx: rand(-0.010, 0.010) * dpr,
+            vy: rand(-0.008, 0.008) * dpr,
+            glow: 0,
+            cool: rand(0.0, 0.10) // tiny bluish tint variation
+          });
+        }
+
+        // Small stars
+        for (let i = 0; i < STAR_COUNT; i++) {
+          stars.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            r: rand(0.55, 1.2) * dpr,
+            a: rand(0.06, 0.18),
+            tw: rand(0.003, 0.010),
+            ph: rand(0, Math.PI * 2),
+            vx: rand(-0.008, 0.008) * dpr,
+            vy: rand(-0.006, 0.006) * dpr,
+            glow: rand(0, 6) * dpr,
+            cool: rand(0.04, 0.16)
+          });
+        }
+
+        // Spark highlights (few, visible glitz)
+        for (let i = 0; i < SPARK_COUNT; i++) {
+          stars.push({
+            x: Math.random() * w,
+            y: Math.random() * h,
+            r: rand(1.3, 2.2) * dpr,
+            a: rand(0.10, 0.24),
+            tw: rand(0.006, 0.016),
+            ph: rand(0, Math.PI * 2),
+            vx: rand(-0.006, 0.006) * dpr,
+            vy: rand(-0.005, 0.005) * dpr,
+            glow: rand(10, 18) * dpr,
+            cool: rand(0.10, 0.22)
+          });
+        }
+      }
+
+      function draw(t) {
+        ctx.clearRect(0, 0, w, h);
+
+        for (const s of stars) {
+          // drift + wrap
+          s.x += s.vx;
+          s.y += s.vy;
+          if (s.x < -30) s.x = w + 30;
+          if (s.x > w + 30) s.x = -30;
+          if (s.y < -30) s.y = h + 30;
+          if (s.y > h + 30) s.y = -30;
+
+          // twinkle
+          const tw = Math.sin((t * 0.001) * (1 + s.tw * 220) + s.ph) * 0.5 + 0.5;
+          const alpha = s.a * (0.70 + tw * 0.75);
+
+          // cool tint (only blueish/white)
+          const base = 255;
+          const b = Math.round(255);
+          const g = Math.round(255 - (s.cool * 35));
+          const r = Math.round(255 - (s.cool * 55));
+
+          // glow
+          ctx.shadowBlur = s.glow;
+          ctx.shadowColor = `rgba(${r}, ${g}, ${b}, 0.22)`;
+
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fill();
+
+          // reset shadow
+          ctx.shadowBlur = 0;
+        }
+
+        requestAnimationFrame(draw);
+      }
+
+      window.addEventListener("resize", resize, { passive: true });
+      resize();
+      requestAnimationFrame(draw);
+    })();
   </script>
 </body>
 </html>
-
