@@ -56,9 +56,9 @@
       width:100%;
       height:100%;
       pointer-events:none;
-      opacity: 0.95;
+      opacity: 1;              /* etwas kräftiger */
       mix-blend-mode: screen;
-      filter: blur(0.15px);
+      filter: blur(0.12px);
     }
 
     /* Film grain (makes it less "clean" and more real) */
@@ -104,6 +104,7 @@
       transform: translateY(8px);
       opacity: 0;
       animation: appear .35s ease-out forwards;
+      text-align: center; /* Texte zentriert */
     }
     @keyframes appear { to { transform: translateY(0); opacity: 1; } }
 
@@ -124,11 +125,17 @@
       white-space: pre-wrap;
     }
 
-    .hint{
-      margin-top: 16px;
+    /* Footer outside the card */
+    .brand-footer{
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 14px;
+      text-align: center;
       font-size: 0.86rem;
       color: rgba(255,255,255,0.52);
-      text-align: center;
+      z-index: 3;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -141,9 +148,10 @@
     <div class="card">
       <p id="question" class="question"></p>
       <p id="answer" class="answer"></p>
-      <div class="hint">ZettelZauber von BeeClaud Studio</div>
     </div>
   </div>
+
+  <div class="brand-footer">ZettelZauber von BeeClaud Studio</div>
 
   <script>
     // ===== Rätsel-Datenbank (1–37) =====
@@ -175,7 +183,7 @@
       25: { q: "Ein Mann steht vor 3 Türen und muss durch eine von ihnen hindurchgehen. Die erste Tür führt zu einem Raum voller lichterloh brennendem Feuer. Durch die zweite Tür gelangt man zu einem Raum voller Mörder mit geladenen Gewehren. Hinter der dritten Tür befindet sich ein Raum mit Löwen, die seit Jahren nichts mehr gefressen haben. Welche Tür sollte der Mann wählen?", a: "Die dritte Tür, denn die Löwen wären längst tot." },
       26: { q: "Eine Frau läuft nach einer Party nachhause und findet einen 100-Euro-Schein auf dem Boden. Obwohl der Mond nicht am Himmel zu sehen ist, sie keine Taschenlampe in der Hand hält und auch keine Straßenbeleuchtung eingeschaltet ist, konnte sie den Schein von weitem erkennen. Wie ist das möglich?", a: "Es ist bereits nach Sonnenaufgang." },
       27: { q: "Zwei Männer befinden sich mitten in der Wüste ohne Wasser, Handys oder Proviant. Einer von ihnen ist bereits tot. Beide Männer haben einen Rucksack auf dem Rücken. Der Mann, der noch lebt, hat einen geöffneten Rucksack, während der des toten Mannes geschlossen ist. Was befindet sich in den beiden Rucksäcken?", a: "Fallschirme" },
-      28: { q: "Eine junge Frau wohnt in einem teuren Luxus-Hotel neben einer Bank. Eines Abends klopft es an ihrer Tür und noch ehe sie „Herein!“ rufen kann, betritt ein fremder Mann ihr Zimmer. Er sagt: „Oh, entschuldigen Sie bitte, ich habe mich in der Tür geirrt.“ Kurz darauf nimmt der Detektiv den Mann fest. Durch welchen Fehler flog der Dieb auf?", a: "Wenn es sein Zimmer gewesen wäre, hätte er nicht geklopft." },
+      28: { q: "Eine junge Frau wohnt in einem teuren Luxus-Hotel neben einer Bank. Eines Abends klopft es an ihrer Tür und noch ehe sie „Herein!“ rufen kann, betritt ein fremder Mann ihr Zimmer. Er sagt: „Oh, entschuldigen Sie bitte, ich habe mich in der Tür geirrt.“ Kurz darauf nimmt der Detektiv den Mann fest. Durch welchen Fehler flog der Dieb auf?", a: "Wenn es wirklich sein Zimmer gewesen wäre, hätte er nicht geklopft." },
       29: { q: "Wie kann ein Mensch neun Tage ohne Schlaf auskommen?", a: "Er schläft nachts." },
       30: { q: "Was passiert, wenn man einen grünen Stein ins Rote Meer wirft?", a: "Er wird nass." },
       31: { q: "Ein Mann schiebt sein Auto vor ein Hotel und geht danach pleite. Was ist passiert?", a: "Er hat Monopoly gespielt." },
@@ -208,18 +216,20 @@
       }
     }
 
-    // ===== Random Cosmic Dust (Canvas) =====
+    // ===== Random Cosmic Dust + subtle shooting stars (Canvas) =====
     (() => {
       const canvas = document.getElementById("dust");
       const ctx = canvas.getContext("2d", { alpha: true });
 
       let w, h, dpr;
       let stars = [];
+      let meteors = [];
+      let nextMeteorAt = 0;
 
-      // Tunables (edel: nicht zu viele)
-      const DUST_COUNT  = 240;  // feiner Staub
-      const STAR_COUNT  = 70;   // kleine Sterne
-      const SPARK_COUNT = 14;   // wenige "glitzernde" Highlights
+      // Tunables (leicht kräftiger, aber edel)
+      const DUST_COUNT  = 240;
+      const STAR_COUNT  = 85;
+      const SPARK_COUNT = 16;
 
       const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -234,20 +244,21 @@
 
       function init() {
         stars = [];
+        meteors = [];
 
-        // Dust (ultra small, many)
+        // Dust (ultra fine)
         for (let i = 0; i < DUST_COUNT; i++) {
           stars.push({
             x: Math.random() * w,
             y: Math.random() * h,
-            r: rand(0.18, 0.55) * dpr,
-            a: rand(0.03, 0.10),
+            r: rand(0.18, 0.60) * dpr,
+            a: rand(0.04, 0.12),          // etwas kräftiger
             tw: rand(0.002, 0.007),
             ph: rand(0, Math.PI * 2),
             vx: rand(-0.010, 0.010) * dpr,
             vy: rand(-0.008, 0.008) * dpr,
             glow: 0,
-            cool: rand(0.0, 0.10) // tiny bluish tint variation
+            cool: rand(0.0, 0.10)
           });
         }
 
@@ -256,37 +267,106 @@
           stars.push({
             x: Math.random() * w,
             y: Math.random() * h,
-            r: rand(0.55, 1.2) * dpr,
-            a: rand(0.06, 0.18),
+            r: rand(0.60, 1.35) * dpr,
+            a: rand(0.08, 0.24),          // kräftiger
             tw: rand(0.003, 0.010),
             ph: rand(0, Math.PI * 2),
             vx: rand(-0.008, 0.008) * dpr,
             vy: rand(-0.006, 0.006) * dpr,
-            glow: rand(0, 6) * dpr,
-            cool: rand(0.04, 0.16)
+            glow: rand(0, 7) * dpr,
+            cool: rand(0.05, 0.18)
           });
         }
 
-        // Spark highlights (few, visible glitz)
+        // Spark highlights
         for (let i = 0; i < SPARK_COUNT; i++) {
           stars.push({
             x: Math.random() * w,
             y: Math.random() * h,
-            r: rand(1.3, 2.2) * dpr,
-            a: rand(0.10, 0.24),
+            r: rand(1.3, 2.35) * dpr,
+            a: rand(0.12, 0.28),          // kräftiger
             tw: rand(0.006, 0.016),
             ph: rand(0, Math.PI * 2),
             vx: rand(-0.006, 0.006) * dpr,
             vy: rand(-0.005, 0.005) * dpr,
-            glow: rand(10, 18) * dpr,
+            glow: rand(12, 20) * dpr,
             cool: rand(0.10, 0.22)
           });
         }
+
+        // first meteor time
+        nextMeteorAt = performance.now() + rand(6500, 14000);
+      }
+
+      function spawnMeteor(now) {
+        // random direction (any direction), subtle speed
+        const angle = rand(0, Math.PI * 2);
+        const speed = rand(1.6, 2.5) * dpr; // subtle speed
+        const vx = Math.cos(angle) * speed;
+        const vy = Math.sin(angle) * speed;
+
+        // start outside the canvas bounds (so it "flies in")
+        let x, y;
+        const margin = 80 * dpr;
+
+        // choose an edge based on direction (start opposite to travel)
+        const ax = -Math.cos(angle);
+        const ay = -Math.sin(angle);
+
+        if (Math.abs(ax) > Math.abs(ay)) {
+          // start at left or right
+          x = ax > 0 ? -margin : w + margin;
+          y = rand(-margin, h + margin);
+        } else {
+          // start at top or bottom
+          x = rand(-margin, w + margin);
+          y = ay > 0 ? -margin : h + margin;
+        }
+
+        meteors.push({
+          x, y, vx, vy,
+          life: 0,
+          maxLife: Math.floor(rand(26, 42)), // short & subtle
+          len: rand(80, 140) * dpr,
+          baseA: rand(0.18, 0.28)            // subtle brightness
+        });
+
+        nextMeteorAt = now + rand(7500, 17000);
+      }
+
+      function drawMeteor(m) {
+        const t = m.life / m.maxLife; // 0..1
+        const fade = (t < 0.25) ? (t / 0.25) : (t > 0.85 ? (1 - t) / 0.15 : 1);
+        const alpha = m.baseA * fade;
+
+        const x2 = m.x - m.vx * (m.len / (2.2 * dpr));
+        const y2 = m.y - m.vy * (m.len / (2.2 * dpr));
+
+        const grad = ctx.createLinearGradient(m.x, m.y, x2, y2);
+        grad.addColorStop(0, `rgba(235,245,255, ${alpha})`);
+        grad.addColorStop(1, `rgba(235,245,255, 0)`);
+
+        ctx.save();
+        ctx.lineWidth = 1.1 * dpr;
+        ctx.lineCap = "round";
+        ctx.shadowBlur = 14 * dpr;
+        ctx.shadowColor = `rgba(180,205,255, ${alpha * 0.5})`;
+        ctx.strokeStyle = grad;
+
+        ctx.beginPath();
+        ctx.moveTo(m.x, m.y);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+        ctx.restore();
       }
 
       function draw(t) {
         ctx.clearRect(0, 0, w, h);
 
+        // spawn meteors occasionally
+        if (t >= nextMeteorAt) spawnMeteor(t);
+
+        // stars
         for (const s of stars) {
           // drift + wrap
           s.x += s.vx;
@@ -301,8 +381,7 @@
           const alpha = s.a * (0.70 + tw * 0.75);
 
           // cool tint (only blueish/white)
-          const base = 255;
-          const b = Math.round(255);
+          const b = 255;
           const g = Math.round(255 - (s.cool * 35));
           const r = Math.round(255 - (s.cool * 55));
 
@@ -314,9 +393,18 @@
           ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
           ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
           ctx.fill();
-
-          // reset shadow
           ctx.shadowBlur = 0;
+        }
+
+        // meteors
+        for (let i = meteors.length - 1; i >= 0; i--) {
+          const m = meteors[i];
+          m.x += m.vx;
+          m.y += m.vy;
+          m.life += 1;
+          drawMeteor(m);
+
+          if (m.life > m.maxLife) meteors.splice(i, 1);
         }
 
         requestAnimationFrame(draw);
