@@ -3,143 +3,235 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Birthday Bowl – Rätselauflösung</title>
+  <title>Rätsel – Lösung</title>
+
   <style>
     :root { color-scheme: light dark; }
+
+    /* Subtiler animierter Gradient (ruhig, erwachsen) */
     body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      margin: 0; padding: 0;
-      line-height: 1.4;
+      background: linear-gradient(
+        120deg,
+        rgba(255, 236, 210, 0.55),
+        rgba(252, 182, 159, 0.35),
+        rgba(161, 196, 253, 0.35),
+        rgba(194, 233, 251, 0.55)
+      );
+      background-size: 240% 240%;
+      animation: bgMove 18s ease-in-out infinite;
     }
+
+    @keyframes bgMove {
+      0%   { background-position: 0% 40%; }
+      50%  { background-position: 100% 60%; }
+      100% { background-position: 0% 40%; }
+    }
+
+    /* leichter "Glow" oben rechts, super subtil */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -40vh -40vw auto auto;
+      width: 70vh;
+      height: 70vh;
+      background: radial-gradient(circle at center,
+        rgba(255,255,255,0.18),
+        rgba(255,255,255,0.00) 60%
+      );
+      filter: blur(6px);
+      pointer-events: none;
+    }
+
     .wrap {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 24px 16px 40px;
+      width: min(880px, 92vw);
+      padding: 22px 16px 30px;
     }
-    h1 { font-size: 1.4rem; margin: 0 0 12px; }
-    p { opacity: .9; margin: 0 0 16px; }
+
+    /* Glass Card */
     .card {
-      border: 1px solid rgba(127,127,127,.25);
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: 0 6px 18px rgba(0,0,0,.06);
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.10);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 18px 60px rgba(0,0,0,0.18);
+      padding: 18px 18px 16px;
+      position: relative;
+      overflow: hidden;
+      transform: translateY(8px);
+      opacity: 0;
+      animation: appear .38s ease-out forwards;
     }
-    label { display: block; font-weight: 600; margin: 0 0 8px; }
-    .row { display: flex; gap: 10px; flex-wrap: wrap; }
-    input[type="number"]{
-      flex: 1 1 160px;
-      font-size: 1.1rem;
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(127,127,127,.35);
-      outline: none;
+
+    @keyframes appear {
+      to { transform: translateY(0); opacity: 1; }
     }
-    button {
-      flex: 0 0 auto;
+
+    /* feine "Glass"-Reflexion */
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: -40% -30% auto auto;
+      width: 420px;
+      height: 420px;
+      background: radial-gradient(circle at center,
+        rgba(255,255,255,0.16),
+        rgba(255,255,255,0) 62%
+      );
+      transform: rotate(18deg);
+      pointer-events: none;
+    }
+
+    .badge {
+      display: inline-block;
+      border: 1px solid rgba(255,255,255,0.24);
+      background: rgba(255,255,255,0.08);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.86rem;
+      opacity: 0.9;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
       font-size: 1.05rem;
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: 1px solid rgba(127,127,127,.35);
-      cursor: pointer;
+      opacity: 0.9;
+      font-weight: 650;
+      letter-spacing: 0.2px;
     }
-    button:active { transform: translateY(1px); }
-    .opts { margin-top: 12px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-    .out {
-      margin-top: 16px;
-      padding: 14px;
-      border-radius: 14px;
-      background: rgba(127,127,127,.12);
-      min-height: 52px;
+
+    .answer {
+      margin: 0;
+      font-size: clamp(1.25rem, 2.6vw, 1.6rem);
+      font-weight: 800;
+      line-height: 1.25;
       white-space: pre-wrap;
     }
-    .hint { font-size: .9rem; opacity: .8; margin-top: 10px; }
-    .small { font-size: .85rem; opacity: .75; margin-top: 18px; }
-    a { color: inherit; }
+
+    .question {
+      margin: 12px 0 0;
+      font-size: 1rem;
+      opacity: 0.78;
+      white-space: pre-wrap;
+    }
+
+    .footer {
+      margin-top: 14px;
+      font-size: 0.9rem;
+      opacity: 0.72;
+    }
+
+    .err {
+      font-weight: 750;
+    }
+
+    .small {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      opacity: 0.65;
+    }
   </style>
 </head>
+
 <body>
   <div class="wrap">
-    <h1>🎉 Birthday Bowl – Rätselauflösung</h1>
-    <p>Gib die <b>Zettelnummer</b> ein (1–20) und lass dir die Lösung anzeigen.</p>
-
     <div class="card">
-      <label for="nr">Zettelnummer</label>
-      <div class="row">
-        <input id="nr" type="number" inputmode="numeric" min="1" max="20" placeholder="z. B. 14" />
-        <button id="btn">Antwort anzeigen</button>
-        <button id="btnClear" type="button">Zurücksetzen</button>
-      </div>
+      <div class="badge">📱 QR-Scan → Lösung</div>
+      <h1 id="title">Rätselauflösung</h1>
 
-      <div class="opts">
-        <label style="display:flex; gap:8px; align-items:center; font-weight:500; margin:0;">
-          <input id="showQ" type="checkbox" />
-          Frage mit anzeigen
-        </label>
-      </div>
+      <p id="answer" class="answer">Bitte scanne einen QR-Code von einem Rätselzettel.</p>
+      <p id="question" class="question" style="display:none;"></p>
 
-      <div id="out" class="out">👋 Bereit, wenn ihr es seid.</div>
-      <div class="hint">Tipp: Nummer eintippen → Enter drücken geht auch.</div>
-    </div>
-
-    <div class="small">
-      <div><b>Hinweis:</b> Diese Seite speichert nichts und sammelt keine Daten.</div>
+      <div id="footer" class="footer" style="display:none;"></div>
+      <div class="small">Diese Seite speichert nichts und sammelt keine Daten.</div>
     </div>
   </div>
 
   <script>
-    // "Datenbank": Rätsel 1–20
+    // Rätsel-Datenbank (1–37) in deiner Reihenfolge
     const riddles = {
-      1:  { q: "Was wird beim Trocknen nass?", a: "Ein Handtuch." },
-      2:  { q: "Ich habe Städte, aber keine Häuser. Ich habe Berge, aber keine Bäume. Ich habe Wasser, aber keine Fische. Was bin ich?", a: "Eine Karte." },
-      3:  { q: "Was hat viele Zähne, aber kann nicht beißen?", a: "Ein Kamm (oder ein Reißverschluss)." },
-      4:  { q: "Je mehr du davon nimmst, desto größer wird es. Was ist es?", a: "Ein Loch." },
+      1:  { q: "Was wird beim Trocknen nass?", a: "Das Handtuch." },
+      2:  { q: "Ich habe Städte, aber keine Häuser. Ich habe Berge, aber keine Bäume. Ich habe Wasser, aber keine Fische. Was bin ich?", a: "Eine Landkarte." },
+      3:  { q: "Was hat viele Zähne, aber kann nicht beißen?", a: "Ein Reißverschluss." },
+      4:  { q: "Je mehr du davon nimmst, desto größer wird es. Was ist es?", a: "Das Loch." },
       5:  { q: "Was gehört dir, wird aber von anderen öfter benutzt als von dir?", a: "Dein Name." },
-      6:  { q: "Was kommt einmal in einer Minute, zweimal in einem Moment, aber nie in tausend Jahren vor?", a: "Der Buchstabe „m“." },
-      7:  { q: "Was hat einen Kopf und einen Schwanz, aber keinen Körper?", a: "Eine Münze." },
-      8:  { q: "Ich bin leicht wie eine Feder, aber selbst der Stärkste kann mich nicht lange halten. Was bin ich?", a: "Der Atem." },
-      9:  { q: "Welches Wort wird kürzer, wenn man zwei Buchstaben hinzufügt?", a: "„kurz“ → „kürzer“." },
-      10: { q: "Zwei Väter und zwei Söhne gehen essen und bestellen drei Portionen. Niemand bleibt hungrig. Wie?", a: "Es sind drei Personen: Opa, Vater, Sohn." },
-      11: { q: "Was kann man fangen, aber nicht werfen?", a: "Eine Erkältung." },
-      12: { q: "Was läuft, hat aber keine Beine?", a: "Wasser (auch: die Nase / eine Uhr)." },
-      13: { q: "Ich spreche ohne Mund und höre ohne Ohren. Ich habe keinen Körper, aber ich lebe mit dem Wind. Was bin ich?", a: "Ein Echo." },
-      14: { q: "Welche Frage kann man nie mit „Ja“ beantworten?", a: "„Schläfst du?“" },
-      15: { q: "Was steigt hoch, wenn der Regen runterkommt?", a: "Ein Regenschirm." },
-      16: { q: "Was ist voller Löcher und hält trotzdem Wasser?", a: "Ein Schwamm." },
-      17: { q: "Was wird größer, je mehr man davon wegnimmt?", a: "Ein Loch. (Ja, doppelt – Klassiker!)" },
-      18: { q: "Was ist am Ende eines Regenbogens?", a: "Der Buchstabe „n“." },
-      19: { q: "Ich habe Schlüssel, aber keine Schlösser. Ich habe Platz, aber keinen Raum. Du kannst eintreten, aber nicht hinausgehen. Was bin ich?", a: "Eine Tastatur." },
-      20: { q: "Was ist orange und rollt den Berg runter?", a: "Eine Mandarine." }
+      6:  { q: "Was kommt einmal in einer Minute, zweimal in einem Moment, aber nie in tausend Jahren vor?", a: "Der Buchstabe „M“." },
+      7:  { q: "Ich bin leicht wie eine Feder, aber selbst der Stärkste kann mich nicht lange halten.", a: "Der Atem." },
+      8:  { q: "Welches Wort wird kürzer, wenn man zwei Buchstaben hinzufügt?", a: "„kurz“ → „kürzer“." },
+      9:  { q: "Zwei Väter und zwei Söhne gehen essen und bestellen drei Portionen. Niemand bleibt hungrig. Wie?", a: "Opa, Vater und Sohn (3 Personen)." },
+      10: { q: "Was kann man fangen, aber nicht werfen?", a: "Eine Erkältung." },
+      11: { q: "Was läuft, hat aber keine Beine?", a: "Die Nase." },
+      12: { q: "Welche Frage kann man nie mit „Ja“ beantworten?", a: "„Schläfst du?“" },
+      13: { q: "Was steigt hoch, wenn der Regen runterkommt?", a: "Ein Regenschirm." },
+      14: { q: "Was ist voller Löcher und hält trotzdem Wasser?", a: "Ein Schwamm." },
+      15: { q: "Was ist am Ende eines Regenbogens?", a: "Der Buchstabe „n“." },
+      16: { q: "Ich kann gebrochen werden, ohne dass man mich berührt. Was bin ich?", a: "Ein Versprechen." },
+      17: { q: "Ich habe Seiten, aber ich bin kein Buch. Was bin ich?", a: "Ein Würfel." },
+      18: { q: "Ich bin am Anfang der Ewigkeit und am Ende der Zeit. Ich bin in jedem Ende, aber nie im Anfang. Was bin ich?", a: "Der Buchstabe „E“." },
+      19: { q: "Du siehst mich nur, wenn Licht da ist – aber Licht selbst bin ich nicht. Was bin ich?", a: "Der Schatten." },
+      20: { q: "Was kann jeder „machen“, aber niemand kann es „sehen“?", a: "Einen Fehler." },
+      21: { q: "Ich bin nicht lebendig, aber ich kann wachsen. Ich habe keine Lunge, aber ich brauche Luft. Was bin ich?", a: "Das Feuer." },
+      22: { q: "Wo ist der einzige Ort, an dem heute immer einen Tag hinter gestern liegt?", a: "Im Wörterbuch." },
+      23: { q: "Warum ist es illegal, eine Frau, die in Spanien lebt, in Frankreich zu begraben?", a: "Weil man lebendige Menschen nicht begraben darf." },
+      24: { q: "Ein Mann und sein Chef haben dieselben Eltern, sind aber keine Geschwister. Wie geht das?", a: "Der Mann ist selbstständig (sein eigener Chef)." },
+      25: { q: "Ein Mann steht vor 3 Türen: Feuer, Mörder mit Gewehren, Löwen die seit Jahren nichts gefressen haben. Welche Tür sollte er wählen?", a: "Die dritte Tür – die Löwen wären längst tot." },
+      26: { q: "Eine Frau findet nachts ohne Mond, Taschenlampe und Straßenlicht einen 100-Euro-Schein. Wie ist das möglich?", a: "Es ist bereits nach Sonnenaufgang." },
+      27: { q: "Zwei Männer in der Wüste, einer ist tot, beide tragen Rucksäcke: der lebende hat ihn offen, der tote geschlossen. Was ist in den Rucksäcken?", a: "Fallschirme." },
+      28: { q: "Im Hotel betritt ein Mann das falsche Zimmer, sagt er habe sich in der Tür geirrt. Der Detektiv verhaftet ihn. Woran erkennt er den Dieb?", a: "Er hätte nicht klopfen müssen, wenn er wirklich dachte, es sei sein Zimmer." },
+      29: { q: "Wie kann ein Mensch neun Tage ohne Schlaf auskommen?", a: "Er schläft nachts." },
+      30: { q: "Was passiert, wenn man einen grünen Stein ins Rote Meer wirft?", a: "Er wird nass." },
+      31: { q: "Ein Mann schiebt sein Auto vor ein Hotel und geht danach pleite. Was ist passiert?", a: "Er hat Monopoly gespielt." },
+      32: { q: "Ein Mann sagt: Vor zwei Tagen war ich 35, dieses Jahr werde ich 37. Wie geht das?", a: "Er hat am 31. Dezember Geburtstag, heute ist der 1. Januar." },
+      33: { q: "Ein Reiter bindet ein 3 Meter langes, stabiles Seil um den Hals seines Pferdes. Der Stall ist 10 Meter entfernt, trotzdem kommt das Pferd hin. Wieso?", a: "Das Seil ist am anderen Ende nicht angebunden." },
+      34: { q: "Du kommst in ein Zimmer: auf dem Bett liegen 2 Katzen, ein Hund und eine Maus. In der Ecke steht der Weihnachtsmann. 3 Tauben und ein kleiner Vogel fliegen im Raum. Wie viele Füße stehen im Zimmer?", a: "8: 2 von dir, 4 vom Bett, 2 vom Weihnachtsmann." },
+      35: { q: "Welche Frucht hat keinen Mut?", a: "Die Feige." },
+      36: { q: "Wie oft kommt die Ziffer 8 in allen Zahlen von 1 bis 100 vor?", a: "20 Mal (inkl. zweimal bei 88)." },
+      37: { q: "Es beginnt mit dem dritten Buchstaben des Alphabets. Der dritte Buchstabe ist der 6. Buchstabe des Alphabets. Der zweite Buchstabe ist der erste Buchstabe des Alphabets. Der vierte Buchstabe ist der 5. Buchstabe des Alphabets. Welches Wort ist gemeint?", a: "„Cafe“ (C-A-F-E)." }
     };
 
-    const nr = document.getElementById("nr");
-    const out = document.getElementById("out");
-    const showQ = document.getElementById("showQ");
+    const answerEl = document.getElementById("answer");
+    const questionEl = document.getElementById("question");
+    const footerEl = document.getElementById("footer");
+    const titleEl = document.getElementById("title");
 
-    function showAnswer() {
-      const n = Number(nr.value);
-      if (!Number.isInteger(n) || n < 1 || n > 20) {
-        out.textContent = "Bitte eine Nummer von 1 bis 20 eingeben.";
-        return;
-      }
-      const item = riddles[n];
-      if (!item) {
-        out.textContent = "Zu dieser Nummer ist (noch) nichts hinterlegt.";
-        return;
-      }
-      out.textContent = showQ.checked
-        ? `#${n}\nFrage: ${item.q}\n\nAntwort: ${item.a}`
-        : `#${n}\nAntwort: ${item.a}`;
+    const params = new URLSearchParams(location.search);
+    const r = params.get("r"); // z.B. ?r=14
+
+    function renderError(msg) {
+      titleEl.textContent = "⚠️ Ungültiger QR-Code";
+      answerEl.innerHTML = `<span class="err">${msg}</span>`;
+      questionEl.style.display = "none";
+      footerEl.style.display = "none";
     }
 
-    document.getElementById("btn").addEventListener("click", showAnswer);
-    document.getElementById("btnClear").addEventListener("click", () => {
-      nr.value = "";
-      out.textContent = "👋 Bereit, wenn ihr es seid.";
-      nr.focus();
-    });
-    nr.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") showAnswer();
-    });
+    if (!r) {
+      // Normaler Aufruf ohne QR
+      titleEl.textContent = "Rätselauflösung";
+      answerEl.textContent = "Bitte scanne einen QR-Code von einem Rätselzettel.";
+    } else {
+      const n = Number(r);
+      const item = riddles[n];
+
+      if (!Number.isInteger(n) || !item) {
+        renderError("Zu diesem Link ist keine Lösung hinterlegt.");
+      } else {
+        titleEl.textContent = "✅ Lösung";
+        answerEl.textContent = item.a;
+
+        // Frage darunter (dezent) – keine Buttons, keine Interaktion
+        questionEl.style.display = "block";
+        questionEl.textContent = "Frage:\n" + item.q;
+
+        footerEl.style.display = "block";
+        footerEl.textContent = `Rätsel-ID: ${n}`;
+      }
+    }
   </script>
 </body>
 </html>
