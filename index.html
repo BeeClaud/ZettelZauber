@@ -22,51 +22,49 @@
         radial-gradient(900px 700px at 82% 28%, rgba(255,255,255,0.05), transparent 65%),
         radial-gradient(1000px 760px at 55% 88%, rgba(90,110,180,0.08), transparent 68%),
         radial-gradient(800px 650px at 40% 55%, rgba(255,255,255,0.03), transparent 70%),
-        linear-gradient(160deg, #03040a 0%, #050814 45%, #020207 100%);
+        linear-gradient(160deg, #02030a 0%, #040713 45%, #020206 100%);
       overflow:hidden;
     }
 
-    /* Nebula drift (subtle, space-like) */
+    /* Nebula drift (very subtle) */
     body::before{
       content:"";
       position:fixed;
       inset:-25%;
       pointer-events:none;
       background:
-        radial-gradient(950px 760px at 18% 38%, rgba(120,140,255,0.10), transparent 62%),
-        radial-gradient(1100px 900px at 78% 28%, rgba(255,255,255,0.05), transparent 66%),
-        radial-gradient(980px 820px at 62% 82%, rgba(90,110,180,0.08), transparent 66%),
+        radial-gradient(950px 760px at 18% 38%, rgba(120,140,255,0.09), transparent 62%),
+        radial-gradient(1100px 900px at 78% 28%, rgba(255,255,255,0.04), transparent 66%),
+        radial-gradient(980px 820px at 62% 82%, rgba(90,110,180,0.07), transparent 66%),
         radial-gradient(860px 700px at 36% 76%, rgba(255,255,255,0.03), transparent 70%);
-      filter: blur(12px) saturate(1.02);
-      opacity: 0.95;
+      filter: blur(14px) saturate(1.02);
+      opacity: 0.85;
       transform: translate3d(0,0,0);
-      animation: nebulaDrift 42s ease-in-out infinite alternate;
+      animation: nebulaDrift 48s ease-in-out infinite alternate;
     }
-
     @keyframes nebulaDrift{
-      0%   { transform: translate3d(-1.2%, -0.7%, 0) scale(1.02); }
-      50%  { transform: translate3d( 1.1%,  0.6%, 0) scale(1.04); }
-      100% { transform: translate3d(-0.6%,  1.1%, 0) scale(1.03); }
+      0%   { transform: translate3d(-1.0%, -0.6%, 0) scale(1.02); }
+      50%  { transform: translate3d( 1.0%,  0.5%, 0) scale(1.04); }
+      100% { transform: translate3d(-0.5%,  1.0%, 0) scale(1.03); }
     }
 
-    /* Random dust canvas layer */
+    /* Starfield canvas */
     #dust{
       position:fixed;
       inset:0;
       width:100%;
       height:100%;
       pointer-events:none;
-      opacity: 1;              /* etwas kräftiger */
+      opacity: 1;
       mix-blend-mode: screen;
-      filter: blur(0.12px);
     }
 
-    /* Film grain (makes it less "clean" and more real) */
+    /* Film grain */
     .grain{
       position:fixed;
       inset:0;
       pointer-events:none;
-      opacity: 0.10;
+      opacity: 0.09;
       mix-blend-mode: overlay;
       background-image:
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.45'/%3E%3C/svg%3E");
@@ -89,7 +87,6 @@
       z-index: 2;
     }
 
-    /* Glass card */
     .card{
       border-radius: 22px;
       border: 1px solid rgba(255,255,255,0.10);
@@ -104,7 +101,7 @@
       transform: translateY(8px);
       opacity: 0;
       animation: appear .35s ease-out forwards;
-      text-align: center; /* Texte zentriert */
+      text-align: center;
     }
     @keyframes appear { to { transform: translateY(0); opacity: 1; } }
 
@@ -125,7 +122,6 @@
       white-space: pre-wrap;
     }
 
-    /* Footer outside the card */
     .brand-footer{
       position: fixed;
       left: 0;
@@ -191,7 +187,7 @@
       33: { q: "Ein Reiter bindet ein 3 Meter langes, stabiles Seil um den Hals seines Pferdes. Der Pferdestall mit Futter ist 10 Meter entfernt, jedoch kann das Pferd dorthin gelangen. Wieso?", a: "Das Seil ist am anderen Ende nicht angebunden." },
       34: { q: "Du kommst in ein Zimmer. Auf dem Bett liegen 2 Katzen, ein Hund und eine Maus. In der Ecke steht der Weihnachtsmann und 3 Tauben sowie ein kleiner Vogel fliegen durch den Raum. Wie viele Füße stehen im Zimmer?", a: "Acht (2 von dir, 4 vom Bett, 2 vom Weihnachtsmann)." },
       35: { q: "Welche Frucht hat keinen Mut?", a: "Die Feige" },
-      36: { q: "Wie oft kommt die Ziffer 8 in allen Zahlen von 1 bis 100 vor?", a: "Insgesamt 20 Mal." },
+      36: { q: "Wie oft kommt die Ziffer 8 in allen Zahlen von 1 bis 100 vor?", a: "Insgesamt 20 Mal" },
       37: { q: "Es beginnt mit dem dritten Buchstaben des Alphabets. Der dritte Buchstabe ist der 6. Buchstabe des Alphabets. Der zweite Buchstabe ist der erste Buchstabe des Alphabets. Der vierte Buchstabe ist der 5. Buchstabe des Alphabets.", a: "Cafe" }
     };
 
@@ -216,22 +212,25 @@
       }
     }
 
-    // ===== Random Cosmic Dust + subtle shooting stars (Canvas) =====
+    // ===== Fly-through Universe (3D starfield) + rare subtle meteors =====
     (() => {
       const canvas = document.getElementById("dust");
       const ctx = canvas.getContext("2d", { alpha: true });
 
-      let w, h, dpr;
-      let stars = [500];
-      let meteors = [20];
+      let w, h, dpr, cx, cy;
+      let stars = [];
+      let meteors = [];
       let nextMeteorAt = 0;
 
-      // Tunables (leicht kräftiger, aber edel)
-      const DUST_COUNT  = 240;
-      const STAR_COUNT  = 500;
-      const SPARK_COUNT = 16;
-
       const rand = (min, max) => Math.random() * (max - min) + min;
+
+      // Tuned for "slow flight" (elegant)
+      const FIELD_DEPTH = 1600;      // bigger = deeper space
+      const STAR_COUNT  = 520;       // density
+      const SPEED       = 2.2;       // forward speed (px-ish in z units)
+      const DRIFT       = 0.08;      // subtle sideways drift
+      const TWINKLE     = 0.20;      // subtle twinkle amount
+      const BASE_ALPHA  = 0.55;      // overall intensity (0..1)
 
       function resize() {
         dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -239,103 +238,75 @@
         h = canvas.height = Math.floor(window.innerHeight * dpr);
         canvas.style.width = window.innerWidth + "px";
         canvas.style.height = window.innerHeight + "px";
+        cx = w / 2;
+        cy = h / 2;
         init();
       }
 
+      function makeStar() {
+        // x/y in a cube around center, z depth
+        const spread = Math.max(w, h) * 0.75;
+        const z = rand(200, FIELD_DEPTH);                 // avoid super-near pop
+        return {
+          x: rand(-spread, spread),
+          y: rand(-spread, spread),
+          z,
+          // a little per-star variance
+          tw: rand(0.002, 0.010),
+          ph: rand(0, Math.PI * 2),
+          // slight cool tint (only white/blue)
+          cool: rand(0.0, 0.22),
+          // class
+          kind: (Math.random() < 0.08) ? "spark" : "star"  // few brighter ones
+        };
+      }
+
       function init() {
-        stars = [];
+        stars = Array.from({ length: STAR_COUNT }, makeStar);
         meteors = [];
+        nextMeteorAt = performance.now() + rand(9000, 19000);
+      }
 
-        // Dust (ultra fine)
-        for (let i = 0; i < DUST_COUNT; i++) {
-          stars.push({
-            x: Math.random() * w,
-            y: Math.random() * h,
-            r: rand(0.18, 0.60) * dpr,
-            a: rand(0.04, 0.12),          // etwas kräftiger
-            tw: rand(0.002, 0.007),
-            ph: rand(0, Math.PI * 2),
-            vx: rand(-0.010, 0.010) * dpr,
-            vy: rand(-0.008, 0.008) * dpr,
-            glow: 0,
-            cool: rand(0.0, 0.10)
-          });
-        }
-
-        // Small stars
-        for (let i = 0; i < STAR_COUNT; i++) {
-          stars.push({
-            x: Math.random() * w,
-            y: Math.random() * h,
-            r: rand(0.60, 1.35) * dpr,
-            a: rand(0.08, 0.24),          // kräftiger
-            tw: rand(0.003, 0.010),
-            ph: rand(0, Math.PI * 2),
-            vx: rand(-0.008, 0.008) * dpr,
-            vy: rand(-0.006, 0.006) * dpr,
-            glow: rand(0, 7) * dpr,
-            cool: rand(0.05, 0.18)
-          });
-        }
-
-        // Spark highlights
-        for (let i = 0; i < SPARK_COUNT; i++) {
-          stars.push({
-            x: Math.random() * w,
-            y: Math.random() * h,
-            r: rand(1.3, 2.35) * dpr,
-            a: rand(0.12, 0.28),          // kräftiger
-            tw: rand(0.006, 0.016),
-            ph: rand(0, Math.PI * 2),
-            vx: rand(-0.006, 0.006) * dpr,
-            vy: rand(-0.005, 0.005) * dpr,
-            glow: rand(12, 20) * dpr,
-            cool: rand(0.10, 0.22)
-          });
-        }
-
-        // first meteor time
-        nextMeteorAt = performance.now() + rand(6500, 14000);
+      function project(s) {
+        // perspective projection
+        const fov = 520 * dpr;               // bigger = less warp
+        const scale = fov / s.z;
+        const x = cx + s.x * scale;
+        const y = cy + s.y * scale;
+        return { x, y, scale };
       }
 
       function spawnMeteor(now) {
-        // random direction (any direction), subtle speed
         const angle = rand(0, Math.PI * 2);
-        const speed = rand(1.6, 2.5) * dpr; // subtle speed
+        const speed = rand(2.2, 3.4) * dpr;
         const vx = Math.cos(angle) * speed;
         const vy = Math.sin(angle) * speed;
 
-        // start outside the canvas bounds (so it "flies in")
+        const margin = 100 * dpr;
         let x, y;
-        const margin = 80 * dpr;
 
-        // choose an edge based on direction (start opposite to travel)
-        const ax = -Math.cos(angle);
-        const ay = -Math.sin(angle);
-
-        if (Math.abs(ax) > Math.abs(ay)) {
-          // start at left or right
-          x = ax > 0 ? -margin : w + margin;
+        // spawn from outside bounds
+        if (Math.abs(vx) > Math.abs(vy)) {
+          x = vx > 0 ? -margin : w + margin;
           y = rand(-margin, h + margin);
         } else {
-          // start at top or bottom
           x = rand(-margin, w + margin);
-          y = ay > 0 ? -margin : h + margin;
+          y = vy > 0 ? -margin : h + margin;
         }
 
         meteors.push({
           x, y, vx, vy,
           life: 0,
-          maxLife: Math.floor(rand(26, 42)), // short & subtle
-          len: rand(80, 140) * dpr,
-          baseA: rand(0.18, 0.28)            // subtle brightness
+          maxLife: Math.floor(rand(28, 46)),
+          len: rand(90, 160) * dpr,
+          baseA: rand(0.16, 0.24) // very subtle
         });
 
-        nextMeteorAt = now + rand(7500, 17000);
+        nextMeteorAt = now + rand(10000, 22000);
       }
 
       function drawMeteor(m) {
-        const t = m.life / m.maxLife; // 0..1
+        const t = m.life / m.maxLife;
         const fade = (t < 0.25) ? (t / 0.25) : (t > 0.85 ? (1 - t) / 0.15 : 1);
         const alpha = m.baseA * fade;
 
@@ -347,12 +318,11 @@
         grad.addColorStop(1, `rgba(235,245,255, 0)`);
 
         ctx.save();
-        ctx.lineWidth = 1.1 * dpr;
+        ctx.lineWidth = 1.05 * dpr;
         ctx.lineCap = "round";
-        ctx.shadowBlur = 14 * dpr;
-        ctx.shadowColor = `rgba(180,205,255, ${alpha * 0.5})`;
+        ctx.shadowBlur = 12 * dpr;
+        ctx.shadowColor = `rgba(170,200,255, ${alpha * 0.55})`;
         ctx.strokeStyle = grad;
-
         ctx.beginPath();
         ctx.moveTo(m.x, m.y);
         ctx.lineTo(x2, y2);
@@ -360,40 +330,82 @@
         ctx.restore();
       }
 
-      function draw(t) {
+      function step(t) {
         ctx.clearRect(0, 0, w, h);
 
-        // spawn meteors occasionally
+        // rare meteors
         if (t >= nextMeteorAt) spawnMeteor(t);
 
-        // stars
+        // subtle center drift so it feels like motion, not just zoom
+        const driftX = Math.sin(t * 0.00012) * (DRIFT * 140 * dpr);
+        const driftY = Math.cos(t * 0.00010) * (DRIFT * 110 * dpr);
+
+        // stars (fly-through)
         for (const s of stars) {
-          // drift + wrap
-          s.x += s.vx;
-          s.y += s.vy;
-          if (s.x < -30) s.x = w + 30;
-          if (s.x > w + 30) s.x = -30;
-          if (s.y < -30) s.y = h + 30;
-          if (s.y > h + 30) s.y = -30;
+          // move forward (towards viewer)
+          s.z -= SPEED * dpr;
+          // tiny lateral drift (adds "travel direction" feeling)
+          s.x += driftX * 0.002;
+          s.y += driftY * 0.002;
 
-          // twinkle
-          const tw = Math.sin((t * 0.001) * (1 + s.tw * 220) + s.ph) * 0.5 + 0.5;
-          const alpha = s.a * (0.70 + tw * 0.75);
+          // recycle star when it passes viewer
+          if (s.z < 120) {
+            // respawn far away with new x/y
+            const spread = Math.max(w, h) * 0.75;
+            s.x = rand(-spread, spread);
+            s.y = rand(-spread, spread);
+            s.z = FIELD_DEPTH;
+            s.tw = rand(0.002, 0.010);
+            s.ph = rand(0, Math.PI * 2);
+            s.cool = rand(0.0, 0.22);
+            s.kind = (Math.random() < 0.08) ? "spark" : "star";
+          }
 
-          // cool tint (only blueish/white)
+          const p = project(s);
+
+          // skip if off screen (helps performance)
+          if (p.x < -50 || p.x > w + 50 || p.y < -50 || p.y > h + 50) continue;
+
+          // size & alpha based on depth
+          const depth = 1 - (s.z / FIELD_DEPTH); // 0 far .. 1 near
+          let radius = (s.kind === "spark" ? 1.2 : 0.8) * p.scale * 1.4;
+          radius = Math.max(0.25 * dpr, Math.min(radius, 2.6 * dpr));
+
+          const tw = (Math.sin(t * 0.001 * (1 + s.tw * 220) + s.ph) * 0.5 + 0.5);
+          const twinkle = 1 - TWINKLE + tw * TWINKLE;
+
+          // cool tint only (white -> slightly blue)
           const b = 255;
-          const g = Math.round(255 - (s.cool * 35));
-          const r = Math.round(255 - (s.cool * 55));
+          const g = Math.round(255 - (s.cool * 34));
+          const r = Math.round(255 - (s.cool * 52));
 
-          // glow
-          ctx.shadowBlur = s.glow;
-          ctx.shadowColor = `rgba(${r}, ${g}, ${b}, 0.22)`;
+          // brightness: near stars a bit stronger, but still classy
+          let alpha = BASE_ALPHA * (0.08 + depth * 0.55) * twinkle;
+          if (s.kind === "spark") alpha *= 1.35;
+
+          // glow for nearer / spark stars
+          const glow = (s.kind === "spark" ? 12 : 6) * dpr * (0.15 + depth);
+          ctx.shadowBlur = glow;
+          ctx.shadowColor = `rgba(${r},${g},${b},${alpha * 0.35})`;
 
           ctx.beginPath();
-          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
-          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+          ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
           ctx.fill();
           ctx.shadowBlur = 0;
+
+          // tiny motion streak for a few nearer stars (adds speed feel)
+          if (depth > 0.70 && Math.random() < 0.015) {
+            ctx.save();
+            ctx.globalAlpha = alpha * 0.45;
+            ctx.strokeStyle = `rgba(${r},${g},${b},${alpha * 0.55})`;
+            ctx.lineWidth = 0.9 * dpr;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p.x - (p.x - cx) * 0.025, p.y - (p.y - cy) * 0.025);
+            ctx.stroke();
+            ctx.restore();
+          }
         }
 
         // meteors
@@ -403,19 +415,16 @@
           m.y += m.vy;
           m.life += 1;
           drawMeteor(m);
-
           if (m.life > m.maxLife) meteors.splice(i, 1);
         }
 
-        requestAnimationFrame(draw);
+        requestAnimationFrame(step);
       }
 
       window.addEventListener("resize", resize, { passive: true });
       resize();
-      requestAnimationFrame(draw);
+      requestAnimationFrame(step);
     })();
   </script>
 </body>
 </html>
-
-
